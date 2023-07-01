@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Registration Form</title>
+  <style>
+    body {
+      background-color: #fff;
+    }
+    
+    .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin: 50px auto;
+      max-width: 800px;
+    }
+    
+    .form-container {
+      width: 300px;
+    }
+    
+    .form-container input[type=text], .form-container input[type=email], .form-container input[type=tel] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    .form-container input[type=file] {
+      margin-bottom: 10px;
+    }
+    
+    .form-container input[type=submit] {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .form-container input[type=submit]:hover {
+      background-color: #45a049;
+    }
+    
+    #preview-container {
+      width: 300px;
+      height: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    #preview {
+      width: 200px;
+      height: auto;
+    }
+  </style>
+  <script>
+    function initializeCamera() {
+      var video = document.getElementById('video');
+
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+          video.srcObject = stream;
+          video.play();
+        })
+        .catch(function(error) {
+          console.log('Error accessing camera: ', error);
+        });
+    }
+    
+    function capturePhoto(firstName) {
+      var video = document.getElementById('video');
+      var canvas = document.createElement('canvas');
+      var context = canvas.getContext('2d');
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      var link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = firstName + '_photo.png';
+      link.click();
+      
+      canvas.remove();
+    }
+    
+    function registerFormSubmit(event) {
+      event.preventDefault(); // Prevent form submission
+      
+      // Get form values
+      var firstName = document.getElementById('firstname').value;
+      var lastName = document.getElementById('lastname').value;
+      var email = document.getElementById('email').value;
+      var phone = document.getElementById('phone').value;
+      
+      // Capture photo from the camera and save to desktop
+      capturePhoto(firstName);
+      
+      // Save form data to a text file
+      var formData = `First Name: ${firstName}\nLast Name: ${lastName}\nEmail: ${email}\nPhone: ${phone}`;
+      var blob = new Blob([formData], { type: 'text/plain' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = firstName + '_form_data.txt';
+      link.click();
+      
+      // Perform additional form processing or submission if needed
+      
+      // Reset the form
+      document.getElementById('registration-form').reset();
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeCamera();
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="form-container">
+      <form id="registration-form">
+        <label for="firstname">First Name:</label>
+        <input type="text" id="firstname" name="firstname" required>
+        
+        <label for="lastname">Last Name:</label>
+        <input type="text" id="lastname" name="lastname" required>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" name="phone" required>
+        
+        <input type="submit" value="Register" onclick="registerFormSubmit(event)">
+      </form>
+    </div>
+    
+    <div id="preview-container">
+      <video id="video" width="300" height="225" autoplay></video>
+    </div>
+  </div>
+</body>
+</html>
